@@ -1,0 +1,37 @@
+<script type="text/javascript" src="__ROOT__/Index/Tpl/Public/js/jquery.js"></script>
+<script type="text/javascript" src="__ROOT__/Index/Tpl/Public/js/jquery.cookie.js"></script>
+
+<a class='z' id="{$v.id}" href="javascript:void(0);">赞(<span>{$v.count}</span>)</a> 
+
+//点赞,cookie实现只能点击一次的效果
+           $(".z").live('click',function(){
+               var Oa=$(this);
+               var id=Oa.attr('id');//获取id属性
+               var vl=Oa.find("span").text();
+                   vl=parseInt(vl)+1;
+               if(!$.cookie(id)){
+                  $.post('{:U("Index/zan")}',{id:id},function(data){
+                     if(data.status==1){
+                          alert('谢谢点赞');//模拟异步数据加1
+                            $.cookie(id,id);//改变flag初始值，确保函数只执行一次
+                            Oa.find("span").text(vl);//页面元素加1
+                     }
+
+                  },'json'); 
+                 
+               }else{
+                   alert('您已经点过赞了,不要重复哦！');
+               }
+               return fale;
+           })
+    public function zan(){
+       $data['id']=isset($_POST['id'])?intval(trim($_POST['id'])):0;
+       $db=M('status');
+       if($db->where($data)->setInc('count')){
+        $this->ajaxReturn($data,'ok',1);
+      }else{
+        $this->ajaxReturn($data,'fail',0);
+      }
+       
+
+    }
